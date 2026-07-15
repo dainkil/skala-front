@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dain Kil — Data Analyst Portfolio</title>
+<style>
+  /* ===== 외부 파일/라이브러리 없이 이 <style> + 하단 <script> 만으로 구현 ===== */
+  :root{
+    --cream:#F5ECE3;
+    --cream2:#EFE7DB;
+    --red:#C32A2A;
+    --teal:#6A898C;
+    --ink:#17181A;
+    --body:#3c3a37;
+    --muted:#7a756c;
+    --nav-h:62px;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+    --sans:"Helvetica Neue",Arial,"Segoe UI",system-ui,sans-serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--cream);
+    color:var(--body);
+    font-family:var(--sans);
+    -webkit-font-smoothing:antialiased;
+    line-height:1.55;
+  }
+
+  /* ---------- 상단 바 ---------- */
+  .topbar{
+    position:sticky;top:0;z-index:100;
+    height:var(--nav-h);
+    background:rgba(245,236,227,.92);
+    backdrop-filter:blur(6px);
+    border-bottom:1.5px solid var(--teal);
+    display:flex;align-items:center;
+  }
+  .topbar .inner{
+    width:100%;max-width:1180px;margin:0 auto;
+    padding:0 clamp(20px,5vw,72px);
+    display:flex;align-items:center;justify-content:space-between;gap:16px;
+  }
+  .brand{display:flex;align-items:center;gap:10px;font-weight:800;color:var(--ink);font-size:.95rem;letter-spacing:-.01em;text-decoration:none;white-space:nowrap;}
+  .brand .dot{width:12px;height:12px;background:var(--red);flex:0 0 auto;}
+  .brand span{color:var(--teal);font-family:var(--mono);font-weight:600;font-size:.72rem;letter-spacing:.04em;text-transform:uppercase;}
+  .nav-links{display:flex;gap:clamp(8px,2.2vw,30px);align-items:center;}
+  .nav-links a{
+    text-decoration:none;color:var(--muted);
+    font-weight:700;font-size:.82rem;letter-spacing:.01em;
+    padding:6px 2px;position:relative;white-space:nowrap;transition:color .18s;
+  }
+  .nav-links a .n{font-family:var(--mono);color:var(--teal);margin-right:6px;font-size:.78rem;}
+  .nav-links a::after{content:"";position:absolute;left:0;right:0;bottom:-2px;height:2px;background:var(--red);transform:scaleX(0);transform-origin:left;transition:transform .22s;}
+  .nav-links a:hover{color:var(--ink);}
+  .nav-links a.active{color:var(--ink);}
+  .nav-links a.active::after{transform:scaleX(1);}
+  /* 스크롤 진행 바 */
+  #prog{position:fixed;top:0;left:0;height:3px;width:0;background:var(--red);z-index:101;}
+
+  /* ---------- 섹션 공통 ---------- */
+  section{scroll-margin-top:calc(var(--nav-h) + 8px);}
+  .panel{
+    min-height:100vh;
+    display:flex;flex-direction:column;justify-content:center;
+    padding:clamp(70px,9vh,120px) 0;
+  }
+  .wrap{width:100%;max-width:1180px;margin:0 auto;padding:0 clamp(20px,5vw,72px);}
+
+  .sec-head{display:flex;align-items:flex-start;gap:18px;margin-bottom:6px;}
+  .sec-sq{width:clamp(30px,4.5vw,54px);height:clamp(30px,4.5vw,54px);background:var(--red);flex:0 0 auto;margin-top:6px;}
+  .sec-num{font-size:clamp(2.6rem,7vw,5rem);font-weight:800;color:var(--ink);line-height:.85;letter-spacing:-.02em;}
+  .sec-title{font-size:clamp(1.5rem,3.6vw,2.7rem);font-weight:800;color:var(--ink);letter-spacing:-.01em;align-self:flex-end;}
+  .rule{height:2px;background:var(--teal);margin:20px 0 34px;}
+  .eyebrow{font-family:var(--mono);text-transform:uppercase;letter-spacing:.14em;font-size:.72rem;color:var(--teal);font-weight:700;margin-bottom:10px;}
+
+  /* ---------- HERO ---------- */
+  .hero{position:relative;overflow:hidden;}
+  .hero .wrap{position:relative;z-index:2;}
+  .hero .eyebrow{font-size:.8rem;}
+  .hero h1{
+    font-size:clamp(2.1rem,6vw,4.6rem);font-weight:800;color:var(--ink);
+    letter-spacing:-.02em;line-height:1.05;max-width:16ch;margin-top:8px;
+  }
+  .hero h1 .hl{color:var(--red);}
+  .hero .sub{margin-top:24px;font-size:clamp(1rem,1.6vw,1.2rem);color:var(--body);max-width:52ch;}
+  .hero .deco-sq{position:absolute;right:6%;top:18%;width:clamp(120px,20vw,280px);height:clamp(120px,20vw,280px);background:var(--red);z-index:1;}
+  .hero .deco-l{position:absolute;right:3%;top:14%;width:clamp(140px,23vw,320px);height:clamp(150px,26vw,360px);border-right:2px solid var(--teal);border-bottom:2px solid var(--teal);z-index:0;}
+  .scrollcue{margin-top:44px;font-family:var(--mono);font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);}
+
+  /* ---------- 카드 / 그리드 ---------- */
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:clamp(20px,3vw,44px);align-items:start;}
+  .block .label{font-family:var(--mono);text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;color:var(--teal);font-weight:700;margin-bottom:12px;padding-bottom:8px;border-bottom:1.5px solid rgba(106,137,140,.4);}
+  .block h3{font-size:1.15rem;font-weight:700;color:var(--ink);letter-spacing:-.01em;}
+  .block .meta{font-family:var(--mono);font-size:.8rem;color:var(--muted);margin-top:2px;}
+  .block p.line{color:var(--body);margin-top:2px;font-size:.95rem;}
+
+  .b{list-style:none;margin-top:12px;display:flex;flex-direction:column;gap:9px;}
+  .b li{position:relative;padding-left:1.15em;font-size:.92rem;color:var(--body);line-height:1.5;}
+  .b li::before{content:"";position:absolute;left:0;top:.52em;width:.42em;height:.42em;background:var(--red);}
+  .b li b{color:var(--ink);font-weight:700;}
+
+  .tags{display:flex;flex-wrap:wrap;gap:12px;margin-top:14px;}
+  .tag{border:1.5px solid var(--teal);color:var(--ink);font-family:var(--mono);text-transform:uppercase;letter-spacing:.06em;font-size:.78rem;font-weight:600;padding:8px 14px;}
+
+  /* Projects */
+  .proj{display:flex;flex-direction:column;gap:34px;}
+  .card{border-left:3px solid var(--red);padding:4px 0 4px 22px;position:relative;}
+  .card .top{display:flex;justify-content:space-between;align-items:baseline;gap:16px;flex-wrap:wrap;}
+  .card h3{font-size:clamp(1.05rem,2vw,1.45rem);font-weight:800;color:var(--ink);letter-spacing:-.01em;line-height:1.25;max-width:60ch;}
+  .card .year{font-family:var(--mono);font-weight:700;font-size:.9rem;color:var(--red);flex:0 0 auto;}
+  .card .stack{font-family:var(--mono);font-size:.8rem;color:var(--teal);margin-top:8px;line-height:1.5;}
+  .card .stack b{color:var(--muted);font-weight:600;}
+
+  /* Certifications */
+  .certs{display:flex;flex-direction:column;}
+  .cert{display:grid;grid-template-columns:1fr auto;gap:8px 24px;align-items:baseline;padding:22px 0;border-bottom:1.5px solid rgba(106,137,140,.4);}
+  .cert:first-child{border-top:1.5px solid rgba(106,137,140,.4);}
+  .cert .name{font-size:1.1rem;font-weight:700;color:var(--ink);}
+  .cert .issuer{font-size:.9rem;color:var(--muted);grid-column:1;}
+  .cert .date{font-family:var(--mono);font-size:.85rem;color:var(--red);font-weight:700;text-align:right;grid-row:1 / span 2;}
+
+  /* TMI */
+  .tmi-grid{display:grid;grid-template-columns:1fr 1fr;gap:clamp(24px,4vw,60px);}
+  .foods{list-style:none;display:flex;flex-wrap:wrap;gap:12px;margin-top:14px;}
+  .food{background:var(--red);color:#fff;font-weight:700;font-size:.92rem;padding:10px 16px;}
+
+  footer{padding:36px 0;border-top:1.5px solid var(--teal);}
+  footer .wrap{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;font-family:var(--mono);font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;}
+
+  /* ---------- 반응형: 폭 좁으면 글자·레이아웃 축소 ---------- */
+  @media (max-width:820px){
+    .grid2,.tmi-grid{grid-template-columns:1fr;}
+    .hero .deco-sq,.hero .deco-l{opacity:.5;}
+  }
+  @media (max-width:600px){
+    :root{--nav-h:56px;}
+    .nav-links a .lbl{display:none;}      /* 좁으면 번호만 노출 */
+    .nav-links{gap:16px;}
+    ul.b li,.block p.line{font-size:.86rem;}
+    .card .stack,.block .label{font-size:.72rem;}
+    .cert{grid-template-columns:1fr;}
+    .cert .date{grid-row:auto;text-align:left;}
+    .brand span{display:none;}
+  }
+</style>
+</head>
+<body>
+<div id="prog"></div>
+
+<!-- ===== 상단 바 ===== -->
+<header class="topbar">
+  <div class="inner">
+    <a class="brand" href="#home"><span class="dot"></span>Dain&nbsp;Kil <span>Data Analyst</span></a>
+    <nav class="nav-links">
+      <a href="#about"><span class="n">01</span><span class="lbl">About</span></a>
+      <a href="#projects"><span class="n">02</span><span class="lbl">Projects</span></a>
+      <a href="#certs"><span class="n">03</span><span class="lbl">Certifications</span></a>
+      <a href="#tmi"><span class="n">04</span><span class="lbl">TMI</span></a>
+    </nav>
+  </div>
+</header>
+
+<!-- ===== HERO ===== -->
+<section id="home" class="panel hero">
+  <div class="deco-l"></div>
+  <div class="deco-sq"></div>
+  <div class="wrap">
+    <div class="eyebrow">Portfolio</div>
+    <h1>Hello! I'm <span class="hl">Dain Kil</span>,<br>a <span class="hl">Data Analyst</span>.</h1>
+    <p class="sub">Contact me at dain02040@gmail.com</p>
+    <div class="scrollcue">↓ Scroll to explore</div>
+  </div>
+</section>
+
+<!-- ===== 01 ABOUT ===== -->
+<section id="about" data-nav class="panel">
+  <div class="wrap">
+    <div class="sec-head"><div class="sec-sq"></div><span class="sec-num">01</span><h2 class="sec-title">About Me</h2></div>
+    <div class="rule"></div>
+
+    <div class="grid2">
+      <div class="block">
+        <div class="label">Education</div>
+        <h3>Hankuk University of Foreign Studies (HUFS)</h3>
+        <p class="line">Bachelor's, Faculty of Convergence Studies</p>
+
+        <div class="label" style="margin-top:32px;">Keywords</div>
+        <dl class="tags">
+          <dt class="tag">Diligence</dt>
+          <dt class="tag">Tenacity</dt>
+          <dt class="tag">Communication</dt>
+        </dl>
+      </div>
+
+      <div class="block">
+        <div class="label">Experience</div>
+        <h3>DAT — Data Analysis &amp; Technology Academic Society</h3>
+        <p class="meta">Sep 2025 – Present · Society President (Mar 2026 – Jun 2026)</p>
+        <ul class="b">
+          <li>Led full society operations as president: designed study and project curricula, and strengthened members' research capabilities.</li>
+          <li>Conducted data analysis projects, including developing a model that converts ASL video into natural text.</li>
+          <li>Planned and ran the GNN-Based Systematic Abusing Network Detection competition — <b>Won 1st place at DAT 6th Capstone.</b></li>
+          <li>Performed literature reviews and joined paper study sessions on machine learning and data processing.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 02 PROJECTS ===== -->
+<section id="projects" data-nav class="panel">
+  <div class="wrap">
+    <div class="sec-head"><div class="sec-sq"></div><span class="sec-num">02</span><h2 class="sec-title">Projects</h2></div>
+    <div class="rule"></div>
+
+    <div class="proj">
+      <div class="card">
+        <div class="top">
+          <h3>Knowledge-Injected LM Pipeline for Seungjeongwon Ilgi Translation</h3>
+          <span class="year">2026</span>
+        </div>
+        <div class="stack"><b>Stack ·</b> SillokBERT (CPT + NER) · Gemini 2.5 Flash · ChromaDB · Python</div>
+        <ul class="b">
+          <li>Designed a 6-stage modular pipeline combining domain-specific NER, a Knowledge Base, and prompt augmentation — explicitly separating linguistic conversion from fact restoration.</li>
+          <li>Built an Injo-period Knowledge Base with 2,690 person metadata records and a 9,403-key inverted index; implemented a 3-stage fallback for homonym resolution.</li>
+          <li>Improved proper-noun translation quality: prevented name-boundary errors, restored full names, and resolved context ambiguities via Knowledge Base linking.</li>
+          <li><b>Presented at HUFS LinguaTech Expo (Nov 2025) — Award recipient.</b></li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="top">
+          <h3>Sharia Screener — Islamic Finance Stock Screening AI Pipeline</h3>
+          <span class="year">2025</span>
+        </div>
+        <div class="stack"><b>Stack ·</b> Python · yfinance · Gemini 2.5 Flash · LangChain · PostgreSQL · ChromaDB · FastMCP</div>
+        <ul class="b">
+          <li>Built a composite screening pipeline combining AAOIFI-standard quantitative analysis (debt ratio, interest income, non-halal revenue) with LLM-based qualitative review.</li>
+          <li>Deployed as a FastMCP server exposing 9 MCP tools, enabling direct tool invocation from Claude Desktop and Claude Code.</li>
+          <li>Integrated a PostgreSQL 7-day cache and ChromaDB vector search to eliminate redundant API calls and enable similar-case retrieval.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="top">
+          <h3>GNN-Based Systematic Abusing Network Detection — Competition Design</h3>
+          <span class="year">2025</span>
+        </div>
+        <div class="stack"><b>Role ·</b> Society President (Organizer) &nbsp; <b>Stack ·</b> GNN (GCN, GAT, GraphSAGE) · PyTorch · YelpZip</div>
+        <ul class="b">
+          <li>Designed a 2-stage academic competition (Preliminary &amp; Final) combining GNN model building with dashboard visualization on the YelpZip dataset.</li>
+          <li>Produced complete graph-edge design guidelines (R-U-R, R-T-R, R-S-R), scoring criteria (PR-AUC and Macro F1), and report templates.</li>
+          <li>Established an evaluation framework centered on creative edge design and real-world applicability.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 03 CERTIFICATIONS ===== -->
+<section id="certs" data-nav class="panel">
+  <div class="wrap">
+    <div class="sec-head"><div class="sec-sq"></div><span class="sec-num">03</span><h2 class="sec-title">Certifications</h2></div>
+    <div class="rule"></div>
+
+    <div class="certs">
+      <div class="cert">
+        <div class="name">SQL Developer</div>
+        <div class="issuer">Korea Data Industry Promotion Institute</div>
+        <div class="date">Dec 2025</div>
+      </div>
+      <div class="cert">
+        <div class="name">Computer Specialist in Spreadsheet &amp; Database, Level 2</div>
+        <div class="issuer">Korea Chamber of Commerce and Industry</div>
+        <div class="date">Sep 2024</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 04 TMI ===== -->
+<section id="tmi" data-nav class="panel">
+  <div class="wrap">
+    <div class="sec-head"><div class="sec-sq"></div><span class="sec-num">04</span><h2 class="sec-title">TMI</h2></div>
+    <div class="rule"></div>
+
+    <div class="tmi-grid">
+      <div class="block">
+        <div class="label">Favorite Foods</div>
+        <ul class="foods">
+          <li class="food">Cafe Latte</li>
+          <li class="food">Chocolate</li>
+          <li class="food">Salmon Spinach Lasagna</li>
+        </ul>
+      </div>
+      <div class="block">
+        <div class="label">Goals for This Year</div>
+        <ol class="b">
+          <li>Get a job</li>
+          <li>Develop a game</li>
+          <li>Play games</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span>Dain Kil — Data Analyst</span>
+    <span>Portfolio · 2026</span>
+  </div>
+</footer>
+
+<script>
+  // 스크롤 진행 바
+  var prog = document.getElementById('prog');
+  window.addEventListener('scroll', function(){
+    var d = document.documentElement;
+    var p = d.scrollTop / (d.scrollHeight - d.clientHeight || 1);
+    prog.style.width = (p*100) + '%';
+  }, {passive:true});
+
+  // 스크롤 시 섹션 전환(현재 섹션 nav 하이라이트)
+  var links = document.querySelectorAll('.nav-links a');
+  var map = {};
+  links.forEach(function(a){ map[a.getAttribute('href').slice(1)] = a; });
+  var sections = document.querySelectorAll('section[data-nav]');
+  var obs = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){
+        links.forEach(function(l){ l.classList.remove('active'); });
+        if(map[e.target.id]) map[e.target.id].classList.add('active');
+      }
+    });
+  }, {rootMargin:'-45% 0px -50% 0px', threshold:0});
+  sections.forEach(function(s){ obs.observe(s); });
+</script>
+</body>
+</html>
