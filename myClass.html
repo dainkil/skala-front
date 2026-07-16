@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Timetable</title>
+</head>
+<!-- CSS 미사용: 모든 스타일은 인라인 style 속성으로만 작성. --cream 변수는 body에 정의 -->
+<body style="--cream:#F5ECE3; margin:0; background-color:#F5ECE3; font-family:Arial, Helvetica, sans-serif; color:#2b2622;">
+
+  <!-- ===== 화면 1 : 계단형 색 막대 (네비게이션) ===== -->
+  <div style="position:relative; width:100%; height:100vh; background:var(--cream); overflow:hidden;">
+
+    <!-- 왼쪽 얇은 어두운 띠 -->
+    <div style="position:absolute; left:0; top:0; width:1.1%; height:100%; background:#2b2320;"></div>
+
+    <!-- MON : amber -->
+    <a href="#day-mon" data-nav style="position:absolute; left:0; top:1.5%; width:55%; height:18%; background:#F3A712; text-decoration:none; display:flex; align-items:center; justify-content:flex-end;">
+      <span style="color:#ffffff; font-style:italic; font-weight:bold; font-size:1.7rem; letter-spacing:1px; margin-right:20px;">MON</span>
+    </a>
+
+    <!-- TUE : red -->
+    <a href="#day-tue" data-nav style="position:absolute; left:0; top:21%; width:60%; height:18%; background:#EE3D42; text-decoration:none; display:flex; align-items:center; justify-content:flex-end;">
+      <span style="color:#ffffff; font-style:italic; font-weight:bold; font-size:1.7rem; letter-spacing:1px; margin-right:20px;">TUE</span>
+    </a>
+
+    <!-- WED : green -->
+    <a href="#day-wed" data-nav style="position:absolute; left:0; top:40.5%; width:65%; height:18%; background:#1B7A3D; text-decoration:none; display:flex; align-items:center; justify-content:flex-end;">
+      <span style="color:#ffffff; font-style:italic; font-weight:bold; font-size:1.7rem; letter-spacing:1px; margin-right:20px;">WED</span>
+    </a>
+
+    <!-- THR : blue -->
+    <a href="#day-thr" data-nav style="position:absolute; left:0; top:60%; width:71%; height:18%; background:#3B33D1; text-decoration:none; display:flex; align-items:center; justify-content:flex-end;">
+      <span style="color:#ffffff; font-style:italic; font-weight:bold; font-size:1.7rem; letter-spacing:1px; margin-right:20px;">THR</span>
+    </a>
+
+    <!-- FRI : orange -->
+    <a href="#day-fri" data-nav style="position:absolute; left:0; top:79.5%; width:78%; height:18%; background:#E8590C; text-decoration:none; display:flex; align-items:center; justify-content:flex-end;">
+      <span style="color:#ffffff; font-style:italic; font-weight:bold; font-size:1.7rem; letter-spacing:1px; margin-right:20px;">FRI</span>
+    </a>
+
+  </div>
+
+  <!-- ===== 요일별 간트차트가 JS로 렌더링될 영역 ===== -->
+  <div id="charts"></div>
+
+<script>
+  // ---- 시간표 데이터 (두번째 사진 판독, 애매한 시간은 근사치) ----
+  var START_H = 9, END_H = 19;              // 가로축: 9시 ~ 19시
+  var SPAN = END_H - START_H;               // 총 10시간 = 100%
+
+  var DAYS = [
+    { key:'mon', num:'01', label:'MON', classes:[
+      { name:'Game Development & Video Making Practice', code:'0513', start:9,   end:12   },
+      { name:'Korean Wave & Exchanging Global Culture', code:'0514', start:12,  end:15   },
+      { name:'Decoding Trans-Chinese Media',            code:'0505', start:15,  end:16.5 }
+    ]},
+    { key:'tue', num:'02', label:'TUE', classes:[] },
+    { key:'wed', num:'03', label:'WED', classes:[
+      { name:'Colloquial Arabic Practice',               code:'0310', start:9,   end:10.5 },
+      { name:'TED\uB85C\uBC30\uC6B0\uB294 \uC601\uC5B4',  code:'0413', start:13,  end:15   },
+      { name:'Practicum of Project for Graduation',      code:'0512', start:17,  end:18.5 }
+    ]},
+    { key:'thr', num:'04', label:'THR', classes:[
+      { name:'Web and UI Programming', code:'5406', start:9,  end:12 },
+      { name:'\uC778\uACF5\uC9C0\uB2A5', code:'5406', start:12, end:15 }
+    ]},
+    { key:'fri', num:'05', label:'FRI', classes:[] }
+  ];
+
+  // 시간 -> 가로 위치(%)
+  function xpct(t){ return ((t - START_H) / SPAN) * 100; }
+  // 시간 라벨 (12시간제 느낌: 13->1)
+  function hourLabel(h){ return h > 12 ? (h - 12) : h; }
+
+  var TOP = 40;        // 시간축 라벨 영역 높이(px)
+  var ROW = 40;        // 과목 한 줄 높이(px)
+  var BAR = 24;        // 막대 높이(px)
+
+  var root = document.getElementById('charts');
+
+  DAYS.forEach(function(day){
+    var rows = day.classes.length;
+    var chartH = TOP + (rows > 0 ? rows * ROW : 60) + 16;
+
+    // ---- 세로 점선 그리드 + 시간 라벨 ----
+    var grid = '';
+    for (var h = START_H; h <= END_H; h++){
+      var lx = xpct(h);
+      grid +=
+        '<div style="position:absolute; left:' + lx + '%; top:22px; height:' + (chartH - 22) + 'px; border-left:1px dashed #c9c6bc;"></div>' +
+        '<div style="position:absolute; left:' + lx + '%; top:0; transform:translateX(-50%); font-family:monospace; font-size:11px; color:#8f8a80;">' + hourLabel(h) + '</div>';
+    }
+
+    // ---- 과목 막대 (무채색) ----
+    var bars = '';
+    if (rows === 0){
+      bars = '<div style="position:absolute; left:0; top:' + (TOP + 14) + 'px; font-size:13px; color:#a29c90; font-style:italic;">No classes</div>';
+    } else {
+      day.classes.forEach(function(c, i){
+        var l = xpct(c.start);
+        var w = xpct(c.end) - xpct(c.start);
+        var t = TOP + i * ROW;
+        bars +=
+          '<div style="position:absolute; left:' + l + '%; width:' + w + '%; top:' + t + 'px; height:' + BAR + 'px; background:#dbdad3; border:1px solid #cbc9c0; box-sizing:border-box; display:flex; align-items:center; padding:0 8px; overflow:visible; white-space:nowrap;">' +
+            '<span style="font-size:11px; color:#2b2622;">' + c.name + ' &middot; ' + c.code + '</span>' +
+          '</div>';
+      });
+    }
+
+    // ---- 섹션 조립 ----
+    var section =
+      '<section id="day-' + day.key + '" style="padding:56px 48px; background:var(--cream);">' +
+        '<div style="display:flex; align-items:flex-start; gap:12px; margin-bottom:30px;">' +
+          '<div style="width:4px; height:46px; background:#1c1a17;"></div>' +
+          '<div>' +
+            '<div style="font-family:monospace; font-size:12px; letter-spacing:2px; color:#1c1a17;">' + day.num + '</div>' +
+            '<div style="font-size:22px; font-weight:bold; letter-spacing:3px; color:#1c1a17;">' + day.label + '</div>' +
+          '</div>' +
+        '</div>' +
+        '<div style="position:relative; width:100%; height:' + chartH + 'px;">' + grid + bars + '</div>' +
+      '</section>';
+
+    root.insertAdjacentHTML('beforeend', section);
+  });
+
+  // ---- 부드러운 스크롤 네비게이션 ----
+  document.querySelectorAll('[data-nav]').forEach(function(a){
+    a.addEventListener('click', function(e){
+      var id = a.getAttribute('href');
+      var target = document.querySelector(id);
+      if (target){
+        e.preventDefault();
+        target.scrollIntoView({ behavior:'smooth', block:'start' });
+      }
+    });
+  });
+</script>
+</body>
+</html>
