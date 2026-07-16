@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sign Up</title>
+  <style>
+    /* ===== Design tokens ===== */
+    :root {
+      --cream:      #F5ECE3;   /* background (solid) */
+      --ink:        #1e1b17;   /* text / button */
+      --muted:      #8a8578;   /* labels / helper text */
+      --line:       #d3ccbe;   /* underline (default) */
+      --line-focus: #1e1b17;   /* underline (focus) */
+      --danger:     #b4462f;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--cream);          /* solid cream */
+      color: var(--ink);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      line-height: 1.5;
+    }
+
+    .wrap {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 72px 32px 96px;
+    }
+
+    /* ===== Header ===== */
+    .page-title {
+      margin: 0 0 4px;
+      font-size: 2.1rem;
+      font-weight: 600;
+      letter-spacing: -.02em;
+    }
+    .page-sub {
+      margin: 0 0 44px;
+      color: var(--muted);
+      font-size: .98rem;
+    }
+
+    /* ===== fieldset / legend ===== */
+    fieldset {
+      border: 0;
+      margin: 0 0 40px;
+      padding: 0;
+    }
+    legend {
+      padding: 0;
+      margin-bottom: 20px;
+      font-size: .82rem;
+      font-weight: 600;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    /* Layout grid */
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 28px 32px;
+    }
+    .grid .full { grid-column: 1 / -1; }
+
+    /* ===== Underline inputs ===== */
+    .field { position: relative; }
+    .field > label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: .8rem;
+      color: var(--muted);
+    }
+    .field .req { color: var(--danger); margin-left: 2px; }
+
+    .field input,
+    .field select {
+      width: 100%;
+      padding: 4px 0 8px;
+      font-size: 1.2rem;
+      color: var(--ink);
+      background: transparent;
+      border: 0;
+      border-bottom: 1px solid var(--line);
+      border-radius: 0;
+      transition: border-color .15s;
+    }
+    .field input::placeholder { color: #b8b1a3; }
+    .field input:focus,
+    .field select:focus {
+      outline: none;
+      border-bottom-color: var(--line-focus);
+    }
+
+    /* select arrow (no external library — inline SVG data URI) */
+    .field select {
+      -webkit-appearance: none;
+      appearance: none;
+      cursor: pointer;
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%238a8578' stroke-width='2'><path d='M6 9l6 6 6-6'/></svg>");
+      background-repeat: no-repeat;
+      background-position: right 2px center;
+      padding-right: 28px;
+    }
+
+    /* Phone: country code (narrow) + number (wide) */
+    .phone-row {
+      display: grid;
+      grid-template-columns: 170px 1fr;
+      gap: 32px;
+    }
+
+    /* ===== Terms ===== */
+    .terms textarea {
+      width: 100%;
+      height: 132px;
+      padding: 14px 16px;
+      font: inherit;
+      font-size: .88rem;
+      line-height: 1.6;
+      color: #5f5a4f;
+      background: rgba(255,255,255,.4);
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      resize: none;
+    }
+    .terms textarea:focus { outline: none; border-color: var(--line-focus); }
+
+    .agree {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-top: 14px;
+      font-size: .92rem;
+      cursor: pointer;
+    }
+    .agree input {
+      margin-top: 3px;
+      width: 17px; height: 17px;
+      accent-color: var(--ink);
+      flex: none;
+    }
+    .agree .req { color: var(--danger); }
+
+    /* ===== Buttons ===== */
+    .actions {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      margin-top: 8px;
+    }
+    button[type="submit"] {
+      padding: 16px 40px;
+      font: inherit;
+      font-size: .92rem;
+      font-weight: 700;
+      letter-spacing: .02em;
+      color: var(--cream);
+      background: var(--ink);
+      border: 0;
+      border-radius: 0;           /* sharp rectangle (reference) */
+      cursor: pointer;
+      transition: opacity .15s;
+    }
+    button[type="submit"]:hover { opacity: .85; }
+
+    button[type="reset"] {
+      padding: 0;
+      font: inherit;
+      font-size: .9rem;
+      color: var(--muted);
+      background: none;
+      border: 0;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      cursor: pointer;
+    }
+    button[type="reset"]:hover { color: var(--ink); }
+
+    button:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+
+    .signin {
+      margin-top: 32px;
+      font-size: .9rem;
+      color: var(--muted);
+    }
+    .signin a { color: var(--ink); font-weight: 600; }
+
+    /* ===== Responsive ===== */
+    @media (max-width: 560px) {
+      .wrap { padding: 48px 22px 72px; }
+      .page-title { font-size: 1.7rem; }
+      .grid { grid-template-columns: 1fr; gap: 24px; }
+      .phone-row { grid-template-columns: 120px 1fr; gap: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <h1 class="page-title">Create your account</h1>
+    <p class="page-sub">Fill in the details below to finish signing up. (<span style="color:var(--danger)">*</span> required)</p>
+
+    <!-- action: result page / method: get -->
+    <form action="signUpResult.html" method="get">
+
+      <!-- Account -->
+      <fieldset>
+        <legend>Account</legend>
+        <div class="grid">
+          <div class="field full">
+            <label for="userid">Username<span class="req">*</span></label>
+            <input type="text" id="userid" name="userid"
+                   placeholder="4–16 letters or numbers"
+                   minlength="4" maxlength="16"
+                   pattern="[A-Za-z0-9]{4,16}" required />
+          </div>
+
+          <div class="field">
+            <label for="password">Password<span class="req">*</span></label>
+            <input type="password" id="password" name="password"
+                   placeholder="At least 8 characters" minlength="8" required />
+          </div>
+
+          <div class="field">
+            <label for="passwordConfirm">Confirm password<span class="req">*</span></label>
+            <!-- no name attribute -> not sent in the URL, used only for confirmation -->
+            <input type="password" id="passwordConfirm"
+                   placeholder="Re-enter password" minlength="8" required />
+          </div>
+        </div>
+      </fieldset>
+
+      <!-- Basic info -->
+      <fieldset>
+        <legend>Basic info</legend>
+        <div class="grid">
+          <div class="field full">
+            <label for="name">Full name<span class="req">*</span></label>
+            <input type="text" id="name" name="name" placeholder="John Doe" required />
+          </div>
+
+          <div class="field full">
+            <label for="phone">Phone number<span class="req">*</span></label>
+            <div class="phone-row">
+              <!-- required element: select / option -->
+              <select id="countrycode" name="countrycode">
+                <option value="+1" selected>USA +1</option>
+                <option value="+44">GBR +44</option>
+                <option value="+82">KOR +82</option>
+                <option value="+81">JPN +81</option>
+                <option value="+86">CHN +86</option>
+              </select>
+              <input type="tel" id="phone" name="phone"
+                     placeholder="555 123 4567"
+                     pattern="[0-9 \-]{9,15}" required />
+            </div>
+          </div>
+        </div>
+      </fieldset>
+
+      <!-- Agreements -->
+      <fieldset class="terms">
+        <legend>Agreements</legend>
+
+        <div class="field full" style="margin-bottom:22px;">
+          <label for="termsText">Terms of Service</label>
+          <!-- required element: textarea (read-only, not submitted) -->
+          <textarea id="termsText" readonly>1. Purpose
+These Terms govern the rights, obligations, and responsibilities between the company and the member in connection with the use of the service.
+
+2. Membership
+The member applies for registration in accordance with the procedures set by the company after agreeing to these Terms. Membership is granted once the company confirms and accepts the application.
+
+3. Member's obligations
+The member must provide accurate information at the time of registration and must not misuse another person's information.</textarea>
+          <label class="agree">
+            <input type="checkbox" name="terms" value="agreed" required />
+            <span>I agree to the Terms of Service.<span class="req"> *</span></span>
+          </label>
+        </div>
+
+        <div class="field full">
+          <label for="privacyText">Privacy Policy</label>
+          <textarea id="privacyText" readonly>1. Data collected: username, password, full name, phone number
+2. Purpose: member identification, service delivery, and customer support
+3. Retention: stored until the account is deleted, then destroyed immediately upon deletion
+4. You have the right to refuse consent to the collection and use of your personal data; however, registration may be limited if you decline.</textarea>
+          <label class="agree">
+            <input type="checkbox" name="privacy" value="agreed" required />
+            <span>I agree to the collection and use of my personal data.<span class="req"> *</span></span>
+          </label>
+        </div>
+      </fieldset>
+
+      <!-- Submit / Reset -->
+      <div class="actions">
+        <button type="submit">Sign up</button>
+        <button type="reset">Reset</button>
+      </div>
+
+      <p class="signin">Already have an account? <a href="#">Sign in</a></p>
+    </form>
+  </main>
+
+  <script>
+    // Password / confirm-password match check (vanilla JS, no libraries)
+    const pw = document.getElementById("password");
+    const pwc = document.getElementById("passwordConfirm");
+
+    function checkMatch() {
+      if (pwc.value && pw.value !== pwc.value) {
+        pwc.setCustomValidity("Passwords do not match.");
+      } else {
+        pwc.setCustomValidity("");  // valid
+      }
+    }
+    pw.addEventListener("input", checkMatch);
+    pwc.addEventListener("input", checkMatch);
+  </script>
+</body>
+</html>
