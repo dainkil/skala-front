@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sign Up Result</title>
+  <style>
+    :root {
+      --cream:  #F5ECE3;
+      --ink:    #1e1b17;
+      --muted:  #8a8578;
+      --line:   #d3ccbe;
+      --field:  #efe6db;
+      --paper:  #faf4ec;
+      --bg:     #F5ECE3;
+      --ok:     #1e1b17;
+      --radius: 6px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; min-height: 100vh;
+      display: flex; align-items: flex-start; justify-content: center;
+      padding: 48px 16px;
+      background: var(--bg); color: var(--ink);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.55;
+    }
+    .card {
+      width: 100%; max-width: 560px;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      box-shadow: 0 14px 40px -24px rgba(30,27,23,.35);
+      overflow: hidden;
+    }
+    .card__head { padding: 32px 32px 24px; border-bottom: 1px solid var(--line); }
+    .badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: .78rem; font-weight: 700; letter-spacing: .1em;
+      color: var(--ok); margin: 0 0 10px;
+    }
+    .badge::before {
+      content: ""; width: 20px; height: 20px; border-radius: 50%;
+      background: var(--ok);
+      -webkit-mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='white' d='M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z'/></svg>") center / 70% no-repeat;
+              mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='white' d='M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z'/></svg>") center / 70% no-repeat;
+    }
+    .card__head h1 { margin: 0 0 4px; font-size: 1.7rem; letter-spacing: -.02em; }
+    .card__head p  { margin: 0; color: var(--muted); font-size: .92rem; }
+
+    .body { padding: 8px 32px 32px; }
+
+    dl.result { margin: 0; }
+    .row {
+      display: grid;
+      grid-template-columns: 150px 1fr;
+      gap: 12px;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--line);
+    }
+    .row:last-child { border-bottom: 0; }
+    dt { color: var(--muted); font-size: .9rem; font-weight: 600; }
+    dd { margin: 0; word-break: break-word; }
+    dd .tag {
+      display: inline-block;
+      margin: 0 6px 4px 0; padding: 3px 10px;
+      font-size: .82rem;
+      background: var(--field);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+    }
+    dd .empty { color: #b8b1a3; }
+
+    .actions { margin-top: 28px; }
+    .btn {
+      display: inline-block; width: 100%; text-align: center;
+      padding: 15px 16px; font-weight: 700;
+      color: var(--cream); background: var(--ink);
+      border-radius: var(--radius); text-decoration: none;
+      transition: opacity .15s;
+    }
+    .btn:hover { opacity: .85; }
+
+    .no-data {
+      padding: 24px 0; color: var(--muted); font-size: .95rem;
+    }
+    @media (max-width: 480px) {
+      .card__head, .body { padding-left: 20px; padding-right: 20px; }
+      .row { grid-template-columns: 110px 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <header class="card__head">
+      <p class="badge">SIGN UP COMPLETE</p>
+      <h1>Your account has been created</h1>
+      <p>Here is the information you submitted.</p>
+    </header>
+
+    <div class="body">
+      <dl class="result" id="result"></dl>
+      <div class="actions">
+        <a class="btn" href="signUp.html">Start over</a>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // 1) Parse the query string (?userid=...&name=...) from the URL.
+    const params = new URLSearchParams(window.location.search);
+
+    // 2) Map each form field name -> label shown on screen.
+    const LABELS = {
+      userid:      "Username",
+      password:    "Password",
+      name:        "Full name",
+      countrycode: "Country code",
+      phone:       "Phone number",
+      terms:       "Terms of Service",
+      privacy:     "Privacy Policy",
+    };
+
+    const result = document.getElementById("result");
+
+    // If nothing was submitted (e.g. opened directly), show a notice.
+    if ([...params.keys()].length === 0) {
+      const p = document.createElement("p");
+      p.className = "no-data";
+      p.textContent = "No sign-up data to display. Please try again from the sign-up page.";
+      result.replaceWith(p);
+    } else {
+      // 3) Render one row per field, in label order.
+      Object.keys(LABELS).forEach((key) => {
+        // A field (like a checkbox) may have multiple values, so use getAll.
+        const values = params.getAll(key).filter((v) => v !== "");
+        if (values.length === 0 && !params.has(key)) return; // skip fields not sent
+
+        const row = document.createElement("div");
+        row.className = "row";
+
+        const dt = document.createElement("dt");
+        dt.textContent = LABELS[key];
+
+        const dd = document.createElement("dd");
+
+        if (key === "password") {
+          // Mask the password instead of showing it (GET exposes it in the URL).
+          dd.textContent = "•".repeat(Math.max(values.join("").length, 8));
+        } else if (values.length === 0) {
+          const span = document.createElement("span");
+          span.className = "empty";
+          span.textContent = "(not provided)";
+          dd.appendChild(span);
+        } else if (values.length > 1) {
+          // Multiple values (e.g. checkboxes) shown as tags.
+          values.forEach((v) => {
+            const tag = document.createElement("span");
+            tag.className = "tag";
+            tag.textContent = v;          // textContent -> prevents XSS
+            dd.appendChild(tag);
+          });
+        } else {
+          dd.textContent = values[0];
+        }
+
+        row.appendChild(dt);
+        row.appendChild(dd);
+        result.appendChild(row);
+      });
+    }
+  </script>
+</body>
+</html>
