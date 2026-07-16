@@ -117,6 +117,12 @@
   .panel:hover .overlay,
   .panel:focus-within .overlay{opacity:1;transform:none;transition-delay:.1s;pointer-events:auto}
 
+  /* 회색(Welcome) 패널: 다른 곳을 hover 해도 텍스트·버튼을 항상 표시(고정) */
+  .panel--pinned .overlay,
+  .hacc__nav:hover .panel--pinned .overlay{
+    opacity:1;transform:none;pointer-events:auto;
+  }
+
   /* 제목: 굵고 큰 글씨 (사진의 큰 제목처럼). 회색은 h1, 나머지는 링크(a) */
   .overlay h1,
   .ov-title{
@@ -162,6 +168,7 @@
     transition:opacity .2s var(--ease);
   }
   .btn-signin:hover{opacity:.82}
+  .btn-signin + .btn-signin{margin-left:10px}
 
   /* 접힌 상태의 세로 라벨 (얇은 막대일 때 살짝 힌트) */
   .panel:focus-visible{box-shadow:0 0 0 3px #000,0 0 0 6px var(--overlay-ink)}
@@ -184,15 +191,16 @@
       <nav class="hacc__nav" aria-label="SKALA 메뉴">
 
         <!-- 1. 회색: 환영 인사 (제목·본문은 main 안, Sign in은 aside 안) -->
-        <figure class="panel is-active" style="--c:#B5B5B5;--i:1">
+        <figure class="panel is-active panel--pinned" style="--c:#B5B5B5;--i:1">
           <div class="overlay">
             <div class="ov-main">
               <h1>Welcome</h1>
               <p class="ov-desc">Welcome to SKALA</p>
             </div>
-            <!-- 오른쪽 상단 = aside : 검정 사각 버튼 -->
+            <!-- 오른쪽 상단 = aside : 검정 사각 버튼 (Log in / Sign up) -->
             <aside class="ov-aside">
-              <a class="btn-signin" href="signUp.html">Sign in</a>
+              <a class="btn-signin" href="login.html">Log in</a>
+              <a class="btn-signin" href="signUp.html">Sign up</a>
             </aside>
           </div>
         </figure>
