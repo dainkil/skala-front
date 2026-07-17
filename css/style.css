@@ -1,95 +1,27 @@
 /* ==========================================================================
-   style.css  —  전체 테마 & 텍스트 스타일 (프로토타입)
-   * 태그 선택자(body, h1, h2, a) + 클래스 선택자(.container) 활용 연습
-   * 아직 어떤 HTML에도 <link> 로 연결하지 않은 "프로토타입" 상태
+   style.css  —  "폰트만" Geist Pixel 로 교체하는 역할
+   * 하는 일 : 모든 텍스트의 글꼴을 Geist Pixel 로 통일
+   * 안 하는 일 : 색 · 크기 · 여백 · 정렬 등 다른 스타일은 일절 건드리지 않음
+   * 모든 HTML 에  <link rel="stylesheet" href="../css/style.css">  로 연결됨
    ========================================================================== */
 
-/* --------------------------------------------------------------------------
-   1) 폰트 등록 : Geist Pixel  (로컬 TTF)
-   - 구글 폰트 대신 /font/Geist_Pixel 의 가변 폰트를 사용
-   - css/ 기준 상대경로. 배포 시엔 폰트를 프로젝트 안(예: /font)으로 복사 권장
-   -------------------------------------------------------------------------- */
+/* 1) 폰트 등록 : Geist Pixel (로컬 가변 TTF)
+   - 경로는 이 CSS 파일(css/) 기준 상대경로 → 한 단계 위로 나가 font/ 로 */
 @font-face {
   font-family: "Geist Pixel";
-  src: url("../../font/Geist_Pixel/GeistPixel-Regular-VariableFont_ELSH.ttf")
+  src: url("../font/Geist_Pixel/GeistPixel-Regular-VariableFont_ELSH.ttf")
        format("truetype");
   font-weight: 100 900;   /* 가변 폰트 : 얇게~굵게 전 구간 */
   font-style: normal;
   font-display: swap;
 }
 
-/* --------------------------------------------------------------------------
-   2) 전체 바탕 & 기본 본문 텍스트  (body 태그 선택자)
-   - 폰트 : Geist Pixel (전체 적용)
-   - 크기 : 16px  → myProfile.html 본문 텍스트 기준(브라우저 기본값)
-   - 줄간격 : 1.55 → myProfile.html 과 동일
-   - 색 : 검은색 / 배경 : 크림톤
-   -------------------------------------------------------------------------- */
-body {
-  font-family: "Geist Pixel", ui-monospace, "SF Mono", Menlo, monospace;
-  font-size: 16px;
-  line-height: 1.55;
-  color: #000000;              /* 본문 = 검은색 */
-  background-color: #F5ECE3;   /* 크림톤 배경 */
-  margin: 0;
-  padding: 32px;
-}
-
-/* --------------------------------------------------------------------------
-   3) 제목 강조  (h1, h2 태그 선택자)  —  첨부 사진 참조
-   - 사진처럼 사각형을 꽉 채우는 초대형 볼드 헤드라인
-   - 색 : 하얀색 / 배경색 : 임의 지정 / Padding·Border 로 블록감
-   -------------------------------------------------------------------------- */
-h1 {
-  font-size: clamp(3rem, 12vw, 6.5rem);  /* 화면 폭에 맞춰 "꽉" 채움 */
-  line-height: 0.92;
-  font-weight: 900;
-  letter-spacing: -0.02em;
-  text-transform: uppercase;
-  color: #FFFFFF;                /* 하얀색 */
-  background-color: #C32A2A;     /* 임의 배경색 (레드) */
-  padding: 0.3em 0.45em;
-  border: 6px solid #17181A;
-  margin: 0 0 28px;
-}
-
-h2 {
-  font-size: clamp(1.6rem, 5vw, 2.8rem);
-  line-height: 1.05;
-  font-weight: 800;
-  letter-spacing: -0.01em;
-  text-transform: uppercase;
-  color: #FFFFFF;                /* 하얀색 */
-  background-color: #6A898C;     /* 임의 배경색 (틸) */
-  padding: 0.35em 0.6em;
-  border-left: 10px solid #C32A2A;
-  margin: 40px 0 18px;
-}
-
-/* --------------------------------------------------------------------------
-   4) 링크 스타일  (a 태그 선택자)  —  임의로 잘 어울리게
-   - 기본 밑줄 제거 → hover 시 언더라인 강조
-   -------------------------------------------------------------------------- */
-a {
-  color: #C32A2A;
-  font-weight: 700;
-  text-decoration: none;
-  border-bottom: 2px solid transparent;
-  transition: color 0.18s ease, border-color 0.18s ease;
-}
-a:hover {
-  color: #17181A;
-  border-bottom-color: #C32A2A;
-}
-a:visited {
-  color: #8A3D3D;
-}
-
-/* --------------------------------------------------------------------------
-   5) 클래스 선택자 예시  —  본문 폭을 잡아주는 컨테이너
-   - 태그 선택자와 대비되는 "클래스 선택자" 활용 연습용
-   -------------------------------------------------------------------------- */
-.container {
-  max-width: 900px;
-  margin: 0 auto;
+/* 2) 모든 요소를 Geist Pixel 로 통일
+   - "*" + !important : 각 페이지가 가진 font-family(인라인/자체 <style>) 까지 덮어써
+     화면의 모든 글자가 Geist Pixel 만 쓰도록 강제
+   - font-family 외에는 아무것도 바꾸지 않음(굵기·크기·색 등은 원래 값 유지) */
+*,
+::before,
+::after {
+  font-family: "Geist Pixel" !important;
 }
