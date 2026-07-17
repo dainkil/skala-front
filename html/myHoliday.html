@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Holiday</title>
+<style>
+  :root{
+    /* 색상: myProfile.html 참고 */
+    --cream:#F5ECE3;
+    --cream2:#EFE7DB;
+    --red:#C32A2A;
+    --teal:#6A898C;
+    --ink:#17181A;
+    --body:#3c3a37;
+    --muted:#7a756c;
+    --green:#3F6246;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+    --sans:"Helvetica Neue",Arial,"Segoe UI",system-ui,sans-serif;
+    --ease:cubic-bezier(.22,.61,.36,1);
+    --spin-size:clamp(44px,6vw,80px);       /* 좁은(세로 쌓임) 화면에선 아래 media 에서 더 키움 */
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    background:var(--cream);
+    color:var(--body);
+    font-family:var(--sans);
+    font-size:16px;
+    -webkit-font-smoothing:antialiased;
+    line-height:1.6;
+    margin:0;
+    padding:0;                       /* 공용 style.css 의 body 패딩 무효화 (전체화면 레이아웃 유지) */
+    overflow:hidden;                 /* 페이지 자체는 스크롤 안 함 (휠이 스크롤을 가져감) */
+  }
+  /* 공용 style.css 의 h1/h2 테두리·여백이 카드로 새어들지 않게 리셋 */
+  .card-title,.card-eyebrow{border:0;padding:0;margin:0;}
+
+  /* ===== 좌: 시간 휠(4) / 우: 카드(6) ===== */
+  .layout{display:flex;align-items:stretch;height:100vh;}
+  .wheel{
+    flex:0 0 40%;
+    position:relative;
+    overflow:hidden;                 /* 위/아래로 넘치는 숫자를 잘라냄 */
+    background:var(--cream);
+  }
+  .content{
+    flex:1;min-width:0;
+    position:relative;
+    background:var(--cream);
+    display:flex;                    /* 오른쪽 영역에 카드 하나를 꽉 채워 배치 */
+    padding:clamp(18px,3vh,34px);    /* index.html .stage 의 여백과 비슷하게 */
+    overflow:visible;                /* 카드 그림자가 잘리지 않도록(바깥은 body 가 overflow:hidden) */
+  }
+
+  /* ===== 시간 문장: It's [숫자] [AM/PM]. ===== */
+  .phrase{
+    position:absolute;
+    top:50%;
+    left:clamp(12px,2%,28px);
+    right:clamp(12px,2%,28px);
+    transform:translateY(-50%);
+    display:flex;
+    align-items:center;
+    justify-content:center;          /* 문장을 가로 가운데로(왼쪽 끝 → 오른쪽으로 이동·균형) */
+    gap:.26em;
+    font-size:var(--spin-size);
+    font-weight:800;
+    line-height:1;
+    letter-spacing:-.01em;
+    color:var(--ink);
+  }
+  .phrase__lead,.phrase__end{color:var(--ink);flex:0 0 auto;}
+
+  /* 세로 스피너: 가운데 항목이 문장 라인에 오고, 위아래로 다른 항목이 흐릿하게 겹쳐 보임 */
+  .spin{
+    position:relative;
+    display:inline-block;
+    height:1em;
+    flex:0 0 auto;
+  }
+  .spin--hour{min-width:1.4em;}
+  .spin--ampm{min-width:1.6em;}
+  .spin__item{
+    position:absolute;
+    left:50%;
+    top:50%;
+    white-space:nowrap;
+    font-weight:800;
+    will-change:transform,opacity;
+    /* transform / color / opacity 는 JS가 매 프레임 지정 */
+  }
+  /* AM/PM 스크롤·클릭 히트 영역(가운데 항목 주변을 넉넉히) */
+  .spin--ampm .spin__hit{
+    position:absolute;
+    left:-.4em;right:-.4em;
+    top:-3.2em;bottom:-3.2em;
+    z-index:5;
+    cursor:ns-resize;
+  }
+
+  .wheel__hint{
+    position:absolute;
+    left:clamp(20px,3vw,36px);
+    bottom:clamp(20px,3vh,32px);
+    font-family:var(--mono);
+    font-size:.66rem;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    color:var(--muted);
+    pointer-events:none;
+  }
+
+  /* ===== 오른쪽 카드: 제목/본문 위치는 두 번째 사진처럼 고정 ===== */
+  .card{
+    position:relative;
+    flex:1;                          /* content 영역을 꽉 채우는 큰 카드(= index.html 패널 크기) */
+    background:#B5B5B5;              /* 사진처럼 회색 (index.html Welcome 패널과 동일한 색) */
+    border-radius:26px;             /* index.html --radius:26px 와 동일 */
+    box-shadow:0 12px 30px -12px rgba(0,0,0,.6);   /* index.html 패널 그림자와 동일 */
+    padding:clamp(30px,4.6vh,56px) clamp(28px,3.6vw,52px);
+    overflow:hidden;
+  }
+  .card-eyebrow{
+    display:flex;align-items:center;gap:10px;
+    font-family:var(--mono);
+    font-size:.8rem;font-weight:700;
+    letter-spacing:.14em;text-transform:uppercase;
+    color:var(--teal);
+  }
+  .card-eyebrow .sq{width:12px;height:12px;background:var(--red);flex:0 0 auto;}
+  .card-eyebrow mark{
+    background:rgba(106,137,140,.18);
+    color:var(--teal);font-weight:800;
+    padding:1px 6px;
+  }
+  .card-title{
+    margin-top:10px;
+    font-size:clamp(3rem,10vw,8rem);   /* 사진의 "Cross"처럼 큼직하게(카드에 맞는 최대치) */
+    font-weight:800;
+    color:var(--ink);
+    letter-spacing:-.03em;
+    line-height:.96;
+    max-width:11ch;
+    overflow-wrap:break-word;          /* 긴 제목도 카드 안에서 줄바꿈 */
+    min-height:1.05em;                 /* 타이핑 중 높이 흔들림 방지 */
+  }
+  /* 본문: 사진처럼 오른쪽 아래로 밀어 배치(고정 위치) */
+  .card-body{
+    position:absolute;
+    bottom:clamp(30px,4.6vh,56px);   /* 사진처럼 오른쪽 아래(라벨과 같은 바닥선)로 */
+    right:clamp(28px,3.6vw,52px);    /* 카드 안쪽 여백에 맞춤 */
+    width:min(34ch,54%);
+    font-size:clamp(.98rem,1.3vw,1.16rem);
+    line-height:1.6;
+    color:var(--body);
+    white-space:pre-line;            /* \n 을 줄바꿈으로 */
+    min-height:3em;
+  }
+  /* 좌하단 라벨(사진의 MODERN ART 위치) */
+  .card-label{
+    position:absolute;
+    left:clamp(28px,3.6vw,52px);     /* 카드 안쪽 여백에 맞춤 */
+    bottom:clamp(30px,4.6vh,56px);
+    font-family:var(--mono);
+    font-size:.8rem;font-weight:800;
+    letter-spacing:.12em;text-transform:uppercase;
+    color:var(--ink);
+    line-height:1.5;
+  }
+  .card-label span{
+    display:block;
+    font-weight:400;text-transform:none;letter-spacing:.02em;
+    color:var(--body);               /* 회색 카드 위 가독성 위해 조금 진하게 */
+  }
+
+  /* 타이핑 커서 */
+  .is-typing::after{
+    content:"▍";
+    color:var(--red);
+    margin-left:2px;
+    animation:blink .7s steps(1) infinite;
+  }
+  @keyframes blink{50%{opacity:0;}}
+
+  /* ---------- 반응형: 좁으면 휠을 위로, 카드를 아래로 ---------- */
+  @media (max-width:860px){
+    body{overflow:auto;}
+    :root{--spin-size:clamp(56px,15vw,128px);}   /* 세로로 쌓이면 휠이 전체폭 → 문장을 더 크게 */
+    .layout{flex-direction:column;height:auto;}
+    .wheel{flex:none;width:100%;height:44vh;border-bottom:1px solid rgba(106,137,140,.4);}
+    .content{width:100%;overflow:visible;border-left:0;}
+    .card{height:auto;min-height:56vh;padding-bottom:96px;}
+    .card-body{position:static;width:auto;max-width:36ch;margin-top:26px;}
+    .card-label{position:static;margin-top:32px;}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .is-typing::after{animation:none!important;}
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+
+  <!-- ===== 왼쪽: It's [숫자 휠] [AM/PM 휠]. ===== -->
+  <div class="wheel" id="wheel">
+    <div class="phrase">
+      <span class="phrase__lead">It's</span>
+      <span class="spin spin--hour" id="hourSpin"></span>
+      <span class="spin spin--ampm" id="ampmSpin"><span class="spin__hit" id="ampmHit"></span></span>
+      <span class="phrase__end">.</span>
+    </div>
+    <p class="wheel__hint">Scroll numbers ↕ · scroll / click AM·PM</p>
+  </div>
+
+  <!-- ===== 오른쪽: 현재 시간대 카드 ===== -->
+  <div class="content">
+    <div class="card">
+      <h2 class="card-eyebrow"><span class="sq"></span>Now · <mark id="cardRange">08 – 12</mark></h2>
+      <h1 class="card-title" id="blkTitle"></h1>
+      <p class="card-body" id="blkDesc"></p>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  /* ===== 시간대별 내용 ===== */
+  var BLOCKS = {
+    morning : {id:'morning',  range:'08 – 12', title:'Morning, done right.',
+               desc:"McDonald's. A McMuffin. Coffee, cold.\nThe day begins slowly, and beautifully."},
+    midday  : {id:'midday',   range:'12 – 14', title:'Midday.',
+               desc:"Lunch. Nothing rushed.\nEverything earned."},
+    together: {id:'together', range:'14 – 16', title:'Together.',
+               desc:"Friends. Conversation.\nThe kind of hours you don't count."},
+    home    : {id:'home',     range:'16 – 18', title:'Home.',
+               desc:"The tank glows. The fish wait.\nA quiet moment of care."},
+    sleep   : {id:'sleep',    range:'18 – 08', title:'Sleep.',
+               desc:"Lights out. The world goes quiet.\nTomorrow can wait."}
+  };
+  function blockForHour(h){
+    if (h >= 8  && h < 12) return BLOCKS.morning;
+    if (h >= 12 && h < 14) return BLOCKS.midday;
+    if (h >= 14 && h < 16) return BLOCKS.together;
+    if (h >= 16 && h < 18) return BLOCKS.home;
+    return BLOCKS.sleep;                         // 그 외 시간은 전부 sleep
+  }
+
+  /* ===== 빠른 타이핑 애니메이션 (그대로 유지) ===== */
+  var titleEl = document.getElementById('blkTitle');
+  var descEl  = document.getElementById('blkDesc');
+  var rangeEl = document.getElementById('cardRange');
+  var typeToken = 0;                             // 블록이 바뀌면 진행 중 타이핑 취소
+
+  function typeText(el, text, speed, done){
+    var my = typeToken;
+    el.classList.add('is-typing');
+    var i = 0;
+    (function tick(){
+      if (my !== typeToken) return;             // 취소됨
+      el.textContent = text.slice(0, i);
+      if (i >= text.length){ el.classList.remove('is-typing'); if (done) done(); return; }
+      i++;
+      var jitter = speed + (Math.random() * speed - speed * 0.5);   // 타다다닥
+      setTimeout(tick, Math.max(10, jitter));
+    })();
+  }
+  function typeBlock(b){
+    typeToken++;
+    var token = typeToken;
+    titleEl.textContent = '';
+    descEl.textContent  = '';
+    typeText(titleEl, b.title, 34, function(){
+      if (token !== typeToken) return;
+      typeText(descEl, b.desc, 20);
+    });
+  }
+
+  /* ===== 세로 스피너 (숫자 / AM·PM) ===== */
+  function makeSpinner(host, values, colors, startIndex, opts){
+    var single = !!(opts && opts.single);        // true 면 가운데 값 하나만 표시(AM/PM 용)
+    var L = values.length;
+    var K = Math.max(6, Math.ceil(160 / L));    // 반복 횟수(끝없이 도는 느낌)
+    var M = L * K;
+    var VIS = 7;                                 // 위/아래로 보이는 개수
+    var SGN = -1;                                // -1: 스크롤 내리면 숫자가 아래로 내려감
+    var SENS = 0.012;                            // 스크롤 민감도(작을수록 천천히)
+    var STEP_MAX = 1;                            // 휠 한 번에 최대 이동 칸수(한 번에 확 내려가는 것 방지)
+
+    var items = [];
+    for (var i = 0; i < M; i++){
+      var sp = document.createElement('span');
+      sp.className = 'spin__item';
+      sp.textContent = values[i % L];
+      sp.dataset.color = colors[i % L];
+      host.appendChild(sp);
+      items.push(sp);
+    }
+
+    var offset = startIndex || 0;               // 가운데에 오는 값의 인덱스(실수)
+    var SPACING = 50;
+    var snapT = null, onChange = null;
+
+    function measure(){
+      SPACING = (parseFloat(getComputedStyle(host).fontSize) || 48) * 1.0;
+    }
+    function centerIndex(){ return ((Math.round(offset) % L) + L) % L; }
+
+    function render(){
+      if (single){                               // AM/PM: 현재 선택된 값 하나만 가운데에 표시
+        var centerItem = ((Math.round(offset) % M) + M) % M;
+        for (var s = 0; s < M; s++){
+          var si = items[s];
+          if (s === centerItem){
+            si.style.visibility = 'visible';
+            si.style.transform  = 'translate(-50%, -50%)';
+            si.style.opacity    = 1;
+            si.style.color      = 'var(--ink)';
+            si.style.fontWeight = 900;
+          } else {
+            si.style.opacity = 0; si.style.visibility = 'hidden';
+          }
+        }
+        return;
+      }
+      for (var i = 0; i < M; i++){
+        var d = i - offset;
+        d = ((d % M) + M) % M;                   // 0..M
+        if (d > M / 2) d -= M;                    // -M/2..M/2  (끝없이 순환)
+        var it = items[i], ad = Math.abs(d);
+        if (ad > VIS){ it.style.opacity = 0; it.style.visibility = 'hidden'; continue; }
+        it.style.visibility = 'visible';
+        var isC = ad < 0.5;
+        var y = d * SPACING;
+        it.style.transform = 'translate(-50%, calc(-50% + ' + y + 'px)) scale(' + (isC ? 1.06 : 1) + ')';
+        it.style.opacity = Math.max(0, 1 - ad * 0.14).toFixed(3);
+        it.style.color = isC ? 'var(--ink)' : it.dataset.color;   // 가운데(선택)만 검은색
+        it.style.fontWeight = isC ? 900 : 800;
+      }
+    }
+    function snap(){
+      var target = Math.round(offset), start = offset, t0 = null;
+      (function step(ts){
+        if (t0 === null) t0 = ts;
+        var p = Math.min((ts - t0) / 200, 1);
+        offset = start + (target - start) * (1 - Math.pow(1 - p, 3));
+        render();
+        if (p < 1) requestAnimationFrame(step);
+        else { offset = target; render(); if (onChange) onChange(); }
+      })(performance.now());
+    }
+    function scrollBy(deltaY){
+      var d = deltaY * SENS * SGN;
+      if (d >  STEP_MAX) d =  STEP_MAX;          // 휠 한 번에 최대 1칸까지만(확 내려가는 것 방지)
+      if (d < -STEP_MAX) d = -STEP_MAX;
+      offset += d;
+      render();
+      if (onChange) onChange();                  // 스크롤 중에도 실시간 반영
+      clearTimeout(snapT);
+      snapT = setTimeout(snap, 90);
+    }
+    function step(dir){                           // 클릭 등으로 한 칸 이동
+      offset = Math.round(offset) + dir;
+      render();
+      if (onChange) onChange();
+    }
+
+    measure(); render();
+    return {
+      render: render, measure: measure, scrollBy: scrollBy, step: step,
+      value: function(){ return values[centerIndex()]; },
+      set onChange(f){ onChange = f; }
+    };
+  }
+
+  /* ===== 조립 ===== */
+  (function(){
+    var wheel   = document.getElementById('wheel');
+    var hourEl  = document.getElementById('hourSpin');
+    var ampmEl  = document.getElementById('ampmSpin');
+    var ampmHit = document.getElementById('ampmHit');
+
+    var HOURS  = [12,1,2,3,4,5,6,7,8,9,10,11];
+    var HCOL   = ['#C32A2A','#1460B3','#0094A2','#3F6246','#A15041','#F33910',
+                  '#7C3AED','#EB64A0','#C79A00','#857DB6','#0F766E','#B4462F'];
+    var AMPM   = ['AM','PM'];
+    var ACOL   = ['#1460B3','#C32A2A'];
+
+    // 시작: It's 8 AM.  (HOURS 에서 8의 인덱스 = 8)
+    var hour = makeSpinner(hourEl, HOURS, HCOL, 8);
+    var ampm = makeSpinner(ampmEl, AMPM, ACOL, 0, {single:true});
+
+    var lastId = null;
+    function update(){
+      var h12 = hour.value();
+      var pm  = ampm.value() === 'PM';
+      var h24 = (h12 % 12) + (pm ? 12 : 0);      // 12AM=0, 12PM=12, 1PM=13 …
+      var b = blockForHour(h24);
+      if (b.id !== lastId){                       // 블록이 바뀔 때만 다시 타이핑
+        lastId = b.id;
+        rangeEl.textContent = b.range;
+        typeBlock(b);
+      }
+    }
+    hour.onChange = update;
+    ampm.onChange = update;
+
+    // 숫자: 휠 어디서 스크롤해도 동작 / AM·PM: 자기 영역 스크롤·클릭
+    wheel.addEventListener('wheel', function(e){ e.preventDefault(); hour.scrollBy(e.deltaY); }, {passive:false});
+    ampmEl.addEventListener('wheel', function(e){ e.preventDefault(); e.stopPropagation(); ampm.scrollBy(e.deltaY); }, {passive:false});
+    ampmHit.addEventListener('click', function(){ ampm.step(1); });
+
+    window.addEventListener('resize', function(){
+      hour.measure(); hour.render();
+      ampm.measure(); ampm.render();
+    });
+
+    update();                                     // 첫 블록 타이핑
+  })();
+</script>
+</body>
+</html>
