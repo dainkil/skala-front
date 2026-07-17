@@ -4,49 +4,149 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>My Trip</title>
+<!-- 공용 폰트: 모든 글자를 Geist Pixel(Google Pixel 스타일)로 통일 -->
+<link rel="stylesheet" href="../css/style.css">
+<style>
+  /* ===== 색상: myHoliday.html 텍스트 부분 참고 ===== */
+  :root{
+    --cream:#F5ECE3;
+    --cream2:#EFE7DB;
+    --red:#C32A2A;
+    --teal:#6A898C;
+    --ink:#17181A;
+    --body:#3c3a37;
+    --muted:#7a756c;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box;}
+
+  /* ===== 박스 모델: 모든 컨텐츠를 가운데 정렬 ===== */
+  .container{
+    width:100%;
+    max-width:1600px;         /* 화면을 넓게 사용 */
+    margin:0 auto;            /* 좌우 auto → 가운데 정렬 */
+    padding:40px clamp(24px,4vw,64px) 56px;  /* 안쪽 여백 */
+    border:0;
+  }
+
+  /* ===== 헤더 (사진처럼 가운데 정렬) ===== */
+  .page-header{ text-align:center; margin:0 0 28px; }
+  /* 제목: 폰트 크기 myHoliday.html .card-title 와 동일 */
+  .page-title{
+    margin:0;
+    font-size:clamp(3rem,10vw,8rem);
+    font-weight:800;
+    letter-spacing:-.03em;
+    line-height:.96;
+    color:var(--ink);
+  }
+
+  /* ===== 3구역: 사진 / 영상 / 음악 (나란히, 화면 꽉 차게) ===== */
+  .regions{ display:flex; gap:28px; align-items:stretch; }
+  /* 패널: 노란색 카드 + 둥근 모서리 + 그림자 */
+  .region{
+    flex:1 1 0; min-width:0;
+    background:#F6C945;                 /* 노란색 패널 */
+    border-radius:26px;
+    box-shadow:0 12px 30px -12px rgba(0,0,0,.35);
+    padding:28px;
+    transition:box-shadow .25s var(--ease,ease), transform .25s var(--ease,ease);
+  }
+  /* 커서 올리면 그림자 살짝 강조 */
+  .region:hover{
+    box-shadow:0 22px 48px -14px rgba(0,0,0,.5);
+    transform:translateY(-4px);
+  }
+  .region__label{
+    font-family:var(--mono);
+    font-size:24px; font-weight:700; letter-spacing:1px;
+    color:var(--ink);
+    margin:0 0 18px;
+  }
+  /* 패널 안 미디어 (화면 높이에 맞춰 크게) */
+  .region__media{
+    width:100%;
+    height:clamp(300px,58vh,640px);
+    display:flex; align-items:center; justify-content:center;
+    background:rgba(0,0,0,.14);
+    border-radius:16px;
+    overflow:hidden;
+  }
+  .region__media img,
+  .region__media video{
+    width:100%; height:100%;
+    object-fit:cover; display:block;
+  }
+  .region__media audio{ width:88%; }
+
+  /* ===== 리뷰 카드: 배경색·테두리·패딩·마진 (myHoliday 텍스트 톤) ===== */
+  .trip-card{
+    background:var(--cream2);          /* 배경색 */
+    border:1px solid #cbc9c0;          /* 테두리 */
+    border-left:4px solid var(--red);  /* 왼쪽 포인트 라인(리뷰 카드 느낌) */
+    border-radius:10px;
+    padding:14px 18px;                 /* 패딩 */
+    margin:16px 0 0;                   /* 마진 */
+    font-size:14px;
+    line-height:1.6;
+    color:var(--body);                 /* myHoliday 본문 색 */
+  }
+
+  /* 좁은 화면: 3구역을 세로로 쌓기 */
+  @media (max-width:760px){
+    .regions{ flex-direction:column; }
+    .region__media{ height:200px; }
+  }
+</style>
 </head>
-<!-- CSS 미사용: 모든 스타일은 인라인 style 속성으로만 작성. --cream 변수는 body에 정의 -->
 <body style="--cream:#F5ECE3; margin:0; background-color:#F5ECE3; font-family:Arial, Helvetica, sans-serif; color:#2b2622;">
 
+<!-- 모든 컨텐츠를 감싸는 가운데 정렬 컨테이너 -->
+<div class="container">
+
   <!-- ===== 헤더 ===== -->
-  <header style="padding:56px 48px 24px; background:var(--cream);">
-    <div style="display:flex; align-items:flex-start; gap:12px;">
-      <div style="width:4px; height:46px; background:#1c1a17;"></div>
-      <div>
-        <div style="font-family:monospace; font-size:12px; letter-spacing:2px; color:#1c1a17;">TRAVEL LOG</div>
-        <div style="font-size:22px; font-weight:bold; letter-spacing:3px; color:#1c1a17;">MY TRIP</div>
-      </div>
-    </div>
+  <header class="page-header">
+    <h1 class="page-title">My Trip</h1>
   </header>
 
-  <!-- ===== 이미지 (media/baseball.jpeg) ===== -->
-  <section style="padding:24px 48px; background:var(--cream);">
-    <h2 style="font-size:16px; letter-spacing:2px; color:#1c1a17; margin:0 0 14px;">01 &middot; PHOTO</h2>
-    <img src="media/baseball.jpeg" alt="야구장에서 남긴 여행 사진"
-         style="display:block; width:100%; max-width:720px; height:auto; border:1px solid #cbc9c0;">
-    <p style="font-size:13px; color:#8f8a80; margin:10px 0 0;">야구장에서 남긴 한 컷.</p>
-  </section>
+  <!-- ===== 3구역: 사진 / 영상 / 음악 ===== -->
+  <div class="regions">
 
-  <!-- ===== 비디오 (media/trip.mp4) ===== -->
-  <section style="padding:24px 48px; background:var(--cream);">
-    <h2 style="font-size:16px; letter-spacing:2px; color:#1c1a17; margin:0 0 14px;">02 &middot; VIDEO</h2>
-    <video controls preload="metadata"
-           style="display:block; width:100%; max-width:720px; height:auto; border:1px solid #cbc9c0; background:#000;">
-      <source src="media/trip.mp4" type="video/mp4">
-      브라우저가 video 태그를 지원하지 않습니다.
-    </video>
-    <p style="font-size:13px; color:#8f8a80; margin:10px 0 0;">여행 중 촬영한 영상.</p>
-  </section>
+    <!-- 01 · 사진 (media/baseball.jpeg) -->
+    <section class="region">
+      <h2 class="region__label">01 &middot; PHOTO</h2>
+      <div class="region__media">
+        <img src="media/baseball.jpeg" alt="A travel photo taken at the ballpark">
+      </div>
+      <p class="trip-card">A shot from the ballpark.</p>
+    </section>
 
-  <!-- ===== 오디오 (외부 URL: archive.org) ===== -->
-  <section style="padding:24px 48px 64px; background:var(--cream);">
-    <h2 style="font-size:16px; letter-spacing:2px; color:#1c1a17; margin:0 0 14px;">03 &middot; AUDIO</h2>
-    <audio controls preload="none" style="width:100%; max-width:720px;">
-      <source src="https://dn710605.ca.archive.org/0/items/Bolero_201511/Bolero.mp3" type="audio/mpeg">
-      브라우저가 audio 태그를 지원하지 않습니다.
-    </audio>
-    <p style="font-size:13px; color:#8f8a80; margin:10px 0 0;">Bolero &middot; archive.org</p>
-  </section>
+    <!-- 02 · 영상 (media/trip.mp4) -->
+    <section class="region">
+      <h2 class="region__label">02 &middot; VIDEO</h2>
+      <div class="region__media">
+        <video controls preload="metadata">
+          <source src="media/trip.mp4" type="video/mp4">
+          Your browser does not support the video tag.
+        </video>
+      </div>
+      <p class="trip-card">A clip filmed during the trip.</p>
+    </section>
 
+    <!-- 03 · 음악 (외부 URL: archive.org) -->
+    <section class="region">
+      <h2 class="region__label">03 &middot; MUSIC</h2>
+      <div class="region__media">
+        <audio controls preload="none">
+          <source src="https://dn710605.ca.archive.org/0/items/Bolero_201511/Bolero.mp3" type="audio/mpeg">
+          Your browser does not support the audio tag.
+        </audio>
+      </div>
+      <p class="trip-card">Bolero &middot; archive.org</p>
+    </section>
+
+  </div>
+
+</div>
 </body>
 </html>
