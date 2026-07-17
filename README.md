@@ -26,7 +26,6 @@ skala-front/
 │   ├── myClass.html       # 시간표 (30분 격자 테이블)
 │   ├── myTrip.html        # 여행 기록 — 사진 / 영상 / 음악 3구역 카드
 │   ├── myHoliday.html     # 휴일 소개 페이지
-│   ├── accordion.html     # 아코디언 UI 예제
 │   └── media/             # 페이지에서 쓰는 이미지·영상 (baseball.jpeg, trip.mp4)
 ├── script/          # 순수 JS 실습 스크립트
 │   ├── bag.js             # 가방 속 물품 목록 출력
@@ -51,7 +50,6 @@ skala-front/
 | `myClass.html` | 09:00~19:00 시간표. 30분 단위 `<table>` 격자에 강의 칸을 `colspan`으로 병합 |
 | `myTrip.html` | 사진 · 영상 · 음악 3구역 카드 레이아웃의 여행 기록 |
 | `myHoliday.html` | 휴일 소개 페이지 |
-| `accordion.html` | 클릭으로 펼치고 접는 아코디언 UI |
 
 ## 스타일 규칙
 
